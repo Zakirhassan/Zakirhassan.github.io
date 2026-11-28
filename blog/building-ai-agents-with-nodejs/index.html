@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Building AI Agents with Node.js: What I Learned as a Tech Lead in Kanpur | Mohd Zakir Hassan</title>
+<meta name="description" content="Mohd Zakir Hassan, a Tech Lead in Kanpur, explains how to build AI agents with Node.js: the core loop, tool design, step limits, human approval, logging and testing.">
+<meta name="google-site-verification" content="W5Dvj5WR71hCFtP2NwO2VX_Twq4315577aLUdTAYdC4" />
+<link rel="canonical" href="https://zakirhassan.github.io/blog/building-ai-agents-with-nodejs/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Building AI Agents with Node.js: What I Learned as a Tech Lead in Kanpur | Mohd Zakir Hassan">
+<meta property="og:description" content="Mohd Zakir Hassan, a Tech Lead in Kanpur, explains how to build AI agents with Node.js: the core loop, tool design, step limits, human approval, logging and testing.">
+<meta property="og:url" content="https://zakirhassan.github.io/blog/building-ai-agents-with-nodejs/">
+<meta property="og:image" content="https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-tech-lead.jpg">
+<meta property="og:image:alt" content="Mohd Zakir Hassan, tech lead from Kanpur, in conversation on a sofa">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Building AI Agents with Node.js: What I Learned as a Tech Lead in Kanpur | Mohd Zakir Hassan">
+<meta name="twitter:description" content="Mohd Zakir Hassan, a Tech Lead in Kanpur, explains how to build AI agents with Node.js: the core loop, tool design, step limits, human approval, logging and testing.">
+<meta name="twitter:image" content="https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-tech-lead.jpg">
+<meta name="twitter:image:alt" content="Mohd Zakir Hassan, tech lead from Kanpur, in conversation on a sofa">
+<meta property="article:published_time" content="2026-11-28">
+<meta property="article:author" content="Mohd Zakir Hassan">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Building AI Agents with Node.js: What I Learned as a Tech Lead in Kanpur",
+  "description": "Mohd Zakir Hassan, a Tech Lead in Kanpur, explains how to build AI agents with Node.js: the core loop, tool design, step limits, human approval, logging and testing.",
+  "datePublished": "2026-11-28",
+  "dateModified": "2026-11-28",
+  "mainEntityOfPage": "https://zakirhassan.github.io/blog/building-ai-agents-with-nodejs/",
+  "image": "https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-tech-lead.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Mohd Zakir Hassan",
+    "url": "https://zakirhassan.github.io/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Mohd Zakir Hassan",
+    "url": "https://zakirhassan.github.io/"
+  }
+}
+</script>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css?v=10">
+</head>
+<body>
+<header class="nav is-scrolled" id="nav">
+  <a href="/" class="nav__logo">ZH<span class="dot">.</span></a>
+  <nav class="nav__links" id="navLinks">
+    <a href="/#about">About</a>
+    <a href="/#highlights">Highlights</a>
+    <a href="/#work">Work</a>
+    <a href="/#experience">Experience</a>
+    <a href="/blog/" class="active">Blog</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <div class="nav__right">
+    <span class="badge"><span class="badge__dot"></span>Open to opportunities</span>
+    <a class="btn btn--pill" href="/assets/Zakir-Hassan-Resume.pdf" target="_blank" rel="noopener">Resume</a>
+  </div>
+  <button class="nav__burger" id="navBurger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</header>
+
+<main class="blog-main">
+  <article class="post">
+    <a href="/blog/" class="post__back">&larr; All posts</a>
+    <h1>Building AI Agents with Node.js: What I Learned as a Tech Lead in Kanpur</h1>
+    <p class="post__byline">By Mohd Zakir Hassan &middot; Kanpur, India &middot; <time datetime="2026-11-28">28 November 2026</time></p>
+    <figure class="post__figure">
+      <picture><source srcset="/assets/img/photos/mohd-zakir-hassan-tech-lead.webp" type="image/webp"><img src="/assets/img/photos/mohd-zakir-hassan-tech-lead.jpg" alt="Mohd Zakir Hassan, tech lead from Kanpur, in conversation on a sofa" width="860" height="895"></picture>
+    </figure>
+    <div class="post__body">
+      <p>I'm Mohd Zakir Hassan, a Tech Lead in Kanpur, and I've been building AI agents with Node.js alongside my day job. An agent is a surprisingly small idea: a program that takes a goal, asks a model what to do next, runs a tool, and repeats until the job is done. Here's what I've learned about doing it well. (For the higher-level lessons, see my earlier post on <a href="/blog/building-ai-agents-from-kanpur/">building AI agents from Kanpur</a>.)</p>
+
+      <h2>Why Node.js works well for agents</h2>
+      <p>Agents spend most of their time waiting on network calls to models and APIs, which is what Node's async model is good at. You also get TypeScript types for tool inputs, a huge npm ecosystem, and the same language as your React frontend. For a full stack JavaScript developer, that last point matters more than any benchmark.</p>
+
+      <h2>The core loop</h2>
+      <p>Strip away the frameworks and an agent looks like this. Here <code>callModel</code> stands for whichever model SDK you use:</p>
+      <pre><code>async function runAgent(goal, tools, { maxSteps = 8 } = {}) {
+  const messages = [{ role: 'user', content: goal }];
+
+  for (let step = 0; step &lt; maxSteps; step++) {
+    const reply = await callModel(messages, describe(tools));
+    messages.push(reply);
+
+    if (!reply.toolCalls?.length) return reply.content;
+
+    for (const call of reply.toolCalls) {
+      const result = await tools[call.name].run(call.args);
+      messages.push({ role: 'tool', id: call.id, content: JSON.stringify(result) });
+    }
+  }
+  throw new Error('Agent hit the step limit');
+}</code></pre>
+      <p>Once you can read this loop, most agent frameworks stop being mysterious.</p>
+
+      <h2>Design tools like public APIs</h2>
+      <p>When an agent misbehaves, the fix is usually a better tool, not a longer prompt. Give each tool a clear name, a one-sentence description, a validated input schema and a predictable output. I validate arguments with a schema library before running anything, and return readable errors so the model can correct itself on the next step.</p>
+
+      <h2>Always set limits</h2>
+      <p>The <code>maxSteps</code> above is not decoration. Agents can loop, so I cap steps, set timeouts on every tool, and keep a budget for model calls. A runaway agent should fail loudly and cheaply.</p>
+
+      <h2>Keep a human in the loop for anything public</h2>
+      <p>Anything that posts, pays or sends a message should wait for approval. I let agents draft and I approve. It is slower, and it is why I trust the results. Make approval a first-class tool, something like <code>requestApproval()</code>, not an afterthought.</p>
+
+      <h2>Log every step</h2>
+      <p>Record each model call, tool call, input and output with a run ID. When something goes wrong, the log tells you whether the model misunderstood, a tool failed or the input was bad. Without it, you are guessing.</p>
+
+      <h2>Make tools safe to retry</h2>
+      <p>Models retry, and so do networks. Where a tool changes something, make it idempotent: use an idempotency key or check state first, so a repeated call does not do the work twice.</p>
+
+      <h2>Test with recorded runs</h2>
+      <p>I test the deterministic parts normally (tools, validation, limits) and replay saved transcripts to check that the loop handles a fixed sequence of model replies. For the model itself, I keep a small set of example goals and review the outputs by hand whenever I change prompts or tools.</p>
+
+      <h2>Keep prompts short and versioned</h2>
+      <p>I keep the system prompt short and specific: the role, the rules that must never be broken, and the output format. Details about each tool belong in the tool descriptions. Treat prompts like code: keep them in version control, review changes, and record which prompt version produced each run. When you switch models, re-run your example goals before you trust the new one.</p>
+
+      <h2>Plan for long-running tasks</h2>
+      <p>Some jobs take longer than a web request should. Run them as background jobs on a queue, save the message history after every step so a crashed run can resume, and stream progress to the interface so users aren't staring at a spinner. A plain job queue is enough to start; you don't need a heavy platform.</p>
+
+      <h2>Treat outside content as untrusted</h2>
+      <p>Anything an agent reads from the outside world (web pages, emails, documents) can contain instructions aimed at the model. Never let such content unlock a tool the user didn't intend, and give each tool the narrowest permissions it needs. The same security thinking you apply to a normal API applies here.</p>
+
+      <h2>Start with one boring task</h2>
+      <p>Pick one real, repetitive task, build the loop, add limits and logs, and only then add a second tool. If you want to see a small, working example of agent-style tooling, my open-source package <a href="https://www.npmjs.com/package/council-board" target="_blank" rel="noopener">council-board</a> is on npm, and the rest of my work is on the <a href="/projects/">projects page</a>. You can find me on <a href="https://x.com/BuildWithZakiir" target="_blank" rel="noopener">X</a> and <a href="https://www.linkedin.com/in/mohdzakirhassan" target="_blank" rel="noopener">LinkedIn</a>, and there is more about me as a <a href="/software-developer-kanpur/">software developer in Kanpur</a>.</p>
+    </div>
+    <aside class="author-box">
+      <img src="/assets/img/photos/mohd-zakir-hassan-portrait.jpg" alt="Mohd Zakir Hassan, software developer and tech lead from Kanpur" width="72" height="72" loading="lazy">
+      <div>
+        <strong>Mohd Zakir Hassan</strong>
+        <p>Tech Lead at Truminds Software Systems, writing about React, scalable systems and AI from Kanpur, India.</p>
+        <a href="/">More about Mohd Zakir Hassan &rarr;</a> &middot; <a href="/software-developer-kanpur/">Software developer in Kanpur</a>
+      </div>
+    </aside>
+  </article>
+</main>
+<footer class="footer footer--blog">
+  <span>&copy; 2026 Mohd Zakir Hassan</span>
+  <nav class="footer__nav" aria-label="Footer"><a href="/software-developer-kanpur/">About</a><a href="/projects/">Projects</a><a href="/blog/">Blog</a></nav>
+  <div class="social-icons">
+  <a href="https://www.linkedin.com/in/mohdzakirhassan" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+  <a href="https://x.com/BuildWithZakiir" target="_blank" rel="noopener" aria-label="X (Twitter)">X</a>
+  <a href="https://www.instagram.com/buildwithzakiir" target="_blank" rel="noopener" aria-label="Instagram — Build With Zakir">ig</a>
+  <a href="https://www.instagram.com/mohd_zakir_hassan" target="_blank" rel="noopener" aria-label="Instagram — personal">ig</a>
+  <a href="https://github.com/Zakirhassan" target="_blank" rel="noopener" aria-label="GitHub">gh</a>
+  <a href="https://dev.to/mohdzakirhassan" target="_blank" rel="noopener" aria-label="DEV Community">dev</a>
+  <a href="https://medium.com/@mohdzakirhassan" target="_blank" rel="noopener" aria-label="Medium">M</a>
+</div>
+  <a href="/" class="footer__top">Home &#8599;</a>
+</footer>
+<script>
+  (function(){var b=document.getElementById('navBurger'),l=document.getElementById('navLinks');
+  if(b&&l)b.addEventListener('click',function(){l.classList.toggle('is-open');});})();
+</script>
+</body>
+</html>

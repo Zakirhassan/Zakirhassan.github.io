@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How I Structure Large React + Next.js Apps (A Kanpur Developer's Playbook) | Mohd Zakir Hassan</title>
+<meta name="description" content="Mohd Zakir Hassan, a Tech Lead and React developer in Kanpur, shares how he structures large React and Next.js apps: feature folders, thin routes, state, boundaries and reviews.">
+<meta name="google-site-verification" content="W5Dvj5WR71hCFtP2NwO2VX_Twq4315577aLUdTAYdC4" />
+<link rel="canonical" href="https://zakirhassan.github.io/blog/how-i-structure-large-react-nextjs-apps/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How I Structure Large React + Next.js Apps (A Kanpur Developer's Playbook) | Mohd Zakir Hassan">
+<meta property="og:description" content="Mohd Zakir Hassan, a Tech Lead and React developer in Kanpur, shares how he structures large React and Next.js apps: feature folders, thin routes, state, boundaries and reviews.">
+<meta property="og:url" content="https://zakirhassan.github.io/blog/how-i-structure-large-react-nextjs-apps/">
+<meta property="og:image" content="https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-software-developer-og-1200x630.jpg">
+<meta property="og:image:alt" content="Mohd Zakir Hassan, software developer and tech lead in Kanpur, working on a laptop">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How I Structure Large React + Next.js Apps (A Kanpur Developer's Playbook) | Mohd Zakir Hassan">
+<meta name="twitter:description" content="Mohd Zakir Hassan, a Tech Lead and React developer in Kanpur, shares how he structures large React and Next.js apps: feature folders, thin routes, state, boundaries and reviews.">
+<meta name="twitter:image" content="https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-software-developer-og-1200x630.jpg">
+<meta name="twitter:image:alt" content="Mohd Zakir Hassan, software developer and tech lead in Kanpur, working on a laptop">
+<meta property="article:published_time" content="2026-11-28">
+<meta property="article:author" content="Mohd Zakir Hassan">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "How I Structure Large React + Next.js Apps (A Kanpur Developer's Playbook)",
+  "description": "Mohd Zakir Hassan, a Tech Lead and React developer in Kanpur, shares how he structures large React and Next.js apps: feature folders, thin routes, state, boundaries and reviews.",
+  "datePublished": "2026-11-28",
+  "dateModified": "2026-11-28",
+  "mainEntityOfPage": "https://zakirhassan.github.io/blog/how-i-structure-large-react-nextjs-apps/",
+  "image": "https://zakirhassan.github.io/assets/img/photos/mohd-zakir-hassan-software-developer-kanpur.jpg",
+  "author": {
+    "@type": "Person",
+    "name": "Mohd Zakir Hassan",
+    "url": "https://zakirhassan.github.io/"
+  },
+  "publisher": {
+    "@type": "Person",
+    "name": "Mohd Zakir Hassan",
+    "url": "https://zakirhassan.github.io/"
+  }
+}
+</script>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css?v=10">
+</head>
+<body>
+<header class="nav is-scrolled" id="nav">
+  <a href="/" class="nav__logo">ZH<span class="dot">.</span></a>
+  <nav class="nav__links" id="navLinks">
+    <a href="/#about">About</a>
+    <a href="/#highlights">Highlights</a>
+    <a href="/#work">Work</a>
+    <a href="/#experience">Experience</a>
+    <a href="/blog/" class="active">Blog</a>
+    <a href="/#contact">Contact</a>
+  </nav>
+  <div class="nav__right">
+    <span class="badge"><span class="badge__dot"></span>Open to opportunities</span>
+    <a class="btn btn--pill" href="/assets/Zakir-Hassan-Resume.pdf" target="_blank" rel="noopener">Resume</a>
+  </div>
+  <button class="nav__burger" id="navBurger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+</header>
+
+<main class="blog-main">
+  <article class="post">
+    <a href="/blog/" class="post__back">&larr; All posts</a>
+    <h1>How I Structure Large React + Next.js Apps (A Kanpur Developer's Playbook)</h1>
+    <p class="post__byline">By Mohd Zakir Hassan &middot; Kanpur, India &middot; <time datetime="2026-11-28">28 November 2026</time></p>
+    <figure class="post__figure">
+      <picture><source srcset="/assets/img/photos/mohd-zakir-hassan-software-developer-kanpur.webp" type="image/webp"><img src="/assets/img/photos/mohd-zakir-hassan-software-developer-kanpur.jpg" alt="Mohd Zakir Hassan, software developer and tech lead in Kanpur, working on a laptop" width="1154" height="1600"></picture>
+    </figure>
+    <div class="post__body">
+      <p>I'm Mohd Zakir Hassan, a Tech Lead and React developer in Kanpur. Over 6+ years I've seen React apps stay pleasant for years and I've seen them turn into a maze in six months. The difference is rarely the framework; it's structure. This is the playbook I follow for large React and Next.js apps.</p>
+
+      <h2>1. Organise by feature, not by file type</h2>
+      <p>A folder per file type (<code>components</code>, <code>hooks</code>, <code>utils</code>) works until the app has fifty screens. Then every change touches five folders. I group by feature instead:</p>
+      <pre><code>src/
+  app/                 # Next.js routes: thin
+  features/
+    billing/
+      components/
+      hooks/
+      api.ts
+      index.ts         # the feature's public API
+    auth/
+    dashboard/
+  shared/              # truly generic UI and helpers</code></pre>
+      <p>When someone asks "where does billing live?", the answer is one folder.</p>
+
+      <h2>2. Keep Next.js routes thin</h2>
+      <p>Files under <code>app/</code> should mostly compose: fetch what the page needs, then render feature components. If a route file grows business logic, it is hard to test and hard to reuse. I treat routes as wiring, and keep the logic in <code>features/</code>.</p>
+
+      <h2>3. Separate server state from UI state</h2>
+      <p>Data that comes from an API is server state; whether a modal is open is UI state. Mixing them in one global store is the most common source of confusing bugs. In Next.js, server components can fetch data directly. For client-side data I use a query library such as React Query, and plain component state for UI. Most apps never need a global store beyond that.</p>
+
+      <h2>4. Give every feature a public API</h2>
+      <p>Each feature exports only what others may use through its <code>index.ts</code>. Other features import from <code>features/billing</code>, never from <code>features/billing/components/InvoiceRow</code>. I enforce this with a lint rule so it does not depend on memory. This one habit is what keeps a large codebase refactorable, because you can change a feature's internals without breaking its consumers.</p>
+
+      <h2>5. Validate at the boundary</h2>
+      <p>Anything crossing a boundary (API responses, form input, route params) gets validated once, with a schema library such as Zod, and typed from there on. TypeScript only protects code you control; the network is not that.</p>
+
+      <h2>6. Measure before you optimise</h2>
+      <p>I use the React Profiler and real user metrics before touching performance. Usually a few heavy re-renders or an oversized bundle explain most of the slowness. Dynamic imports for heavy, rarely used components and the Next.js image component cover a lot of ground before anything exotic is needed.</p>
+
+      <h2>7. Secure by default</h2>
+      <p>Short-lived JWTs, refresh tokens in httpOnly cookies, and role checks on the server. Next.js middleware is good for redirects, but authorisation decisions belong next to the data, not only in the UI.</p>
+
+      <h2>8. Make code review the architecture meeting</h2>
+      <p>As a tech lead in Kanpur, the biggest lever I have is review. I keep pull requests small, comment on structure (boundaries, naming, where logic lives) more than style, and write down decisions that surprised us so the next person doesn't relitigate them.</p>
+
+      <h2>9. Test the seams, not the pixels</h2>
+      <p>I write most tests at feature boundaries: component tests against each feature's public surface, plus a handful of end-to-end tests for the journeys that must never break, such as signing in or completing a payment. Tests inside a feature can change freely when its internals change. Tests at the public API should rarely change, and when they do, it tells you a boundary has moved. I mock the network at the edge, with a tool like MSW, so tests exercise real component code instead of mocked hooks.</p>
+
+      <h2>10. Agree conventions once</h2>
+      <p>Naming, file layout and when to extract shared code are worth deciding early. I follow a rule of three: duplicate once, and extract the third time, when real use cases show what the abstraction should be. Premature shared components become the most-changed and least-understood files in the repo. Keep the rules in a short CONTRIBUTING file; a one-page doc that people read beats a wiki nobody opens. Watch the <code>shared/</code> folder too, because it quietly turns into a dumping ground. If only one feature uses something, move it back into that feature.</p>
+
+      <h2>Start small</h2>
+      <p>You don't need to adopt all of this on day one. Start with feature folders and thin routes; the rest follows when the app needs it. If you're building AI features into your React app, I wrote about <a href="/blog/building-ai-agents-with-nodejs/">building AI agents with Node.js</a> too, and you can find more about my background on my page for <a href="/software-developer-kanpur/">software developer in Kanpur</a>.</p>
+    </div>
+    <aside class="author-box">
+      <img src="/assets/img/photos/mohd-zakir-hassan-portrait.jpg" alt="Mohd Zakir Hassan, software developer and tech lead from Kanpur" width="72" height="72" loading="lazy">
+      <div>
+        <strong>Mohd Zakir Hassan</strong>
+        <p>Tech Lead at Truminds Software Systems, writing about React, scalable systems and AI from Kanpur, India.</p>
+        <a href="/">More about Mohd Zakir Hassan &rarr;</a> &middot; <a href="/software-developer-kanpur/">Software developer in Kanpur</a>
+      </div>
+    </aside>
+  </article>
+</main>
+<footer class="footer footer--blog">
+  <span>&copy; 2026 Mohd Zakir Hassan</span>
+  <nav class="footer__nav" aria-label="Footer"><a href="/software-developer-kanpur/">About</a><a href="/projects/">Projects</a><a href="/blog/">Blog</a></nav>
+  <div class="social-icons">
+  <a href="https://www.linkedin.com/in/mohdzakirhassan" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
+  <a href="https://x.com/BuildWithZakiir" target="_blank" rel="noopener" aria-label="X (Twitter)">X</a>
+  <a href="https://www.instagram.com/buildwithzakiir" target="_blank" rel="noopener" aria-label="Instagram — Build With Zakir">ig</a>
+  <a href="https://www.instagram.com/mohd_zakir_hassan" target="_blank" rel="noopener" aria-label="Instagram — personal">ig</a>
+  <a href="https://github.com/Zakirhassan" target="_blank" rel="noopener" aria-label="GitHub">gh</a>
+  <a href="https://dev.to/mohdzakirhassan" target="_blank" rel="noopener" aria-label="DEV Community">dev</a>
+  <a href="https://medium.com/@mohdzakirhassan" target="_blank" rel="noopener" aria-label="Medium">M</a>
+</div>
+  <a href="/" class="footer__top">Home &#8599;</a>
+</footer>
+<script>
+  (function(){var b=document.getElementById('navBurger'),l=document.getElementById('navLinks');
+  if(b&&l)b.addEventListener('click',function(){l.classList.toggle('is-open');});})();
+</script>
+</body>
+</html>
